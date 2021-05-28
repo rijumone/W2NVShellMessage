@@ -1,2 +1,14 @@
-fg_color = None
-bg_color = None
+conf = {
+    'color': {
+        'foreground': {
+            'main': '',
+            'year': '',
+            'episode': '',
+        },
+        'background': {
+            'main': '',
+            'year': '',
+            'episode': '',
+        },
+    }
+}
