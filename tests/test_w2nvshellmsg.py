@@ -2,14 +2,13 @@ import os
 import pickle
 import shutil
 import pathlib
-import requests
 from w2nvshellmsg.main import (
-    chk_url_up, BASE_URL, 
-    init, PROJ_ROOT,
+    chk_url_up, BASE_URL,
+    create_cache_dir,
     fetch, Quote,
     save_cache, CACHE_DIR,
     show_msg,
-    )
+)
 
 
 def test_url_working():
@@ -21,19 +20,19 @@ def test_url_working():
     assert chk_url_up(url=BASE_URL.format(pg_suff='')) == True
 
 
-def test_init_creating_cache_dir_if_ne():
+def test_create_cache_dir_creating_cache_dir_if_ne():
     """
     GIVEN .cache dir does or does not exist, rm if exists
-    WHEN init() is called 
+    WHEN create_cache_dir() is called 
     THEN .cache dir needs to be created
     """
     try:
-        shutil.rmtree(os.path.join(PROJ_ROOT, '.cache'))
+        shutil.rmtree(CACHE_DIR)
     except FileNotFoundError as _e:
         pass
-    init()
+    create_cache_dir()
 
-    assert pathlib.Path(os.path.join(PROJ_ROOT, '.cache')).is_dir() == True
+    assert pathlib.Path(CACHE_DIR).is_dir() == True
 
 
 def test_fetch_returns_lst():
@@ -85,7 +84,7 @@ def test_show_msg_shows_random_msg():
     WHEN is called
     THEN message is returned
     """
-    quote = show_msg()
+    quote = show_msg(return_msg=True)
     assert type(quote.text) == str
 
 

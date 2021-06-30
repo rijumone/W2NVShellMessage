@@ -12,9 +12,9 @@ colorama_init()
 
 BASE_URL = 'https://nightvale.fandom.com{pg_suff}'
 TRANSCRIPT_URL = 'https://nightvale.fandom.com/wiki/Category:Year_{year}_transcripts'
-HERE = pathlib.Path(__file__).parent
-PROJ_ROOT = os.sep.join(str(HERE).split(os.sep)[:-1])
-CACHE_DIR = os.path.join(PROJ_ROOT, '.cache')
+# HERE = pathlib.Path(__file__).parent
+# PROJ_ROOT = os.sep.join(str(HERE).split(os.sep)[:-1])
+CACHE_DIR = os.path.join(os.path.expanduser('~'), '.cache', 'w2nv')
 
 
 @dataclass
@@ -24,11 +24,18 @@ class Quote:
     episode: str
 
 
-def init():
+def create_cache_dir():
     try:
         os.mkdir(CACHE_DIR)
     except FileExistsError as _e:
         pass
+
+
+def init():
+    create_cache_dir()
+    assert chk_url_up(url=BASE_URL.format(pg_suff='')) == True
+    lst = fetch()
+    save_cache(lst)
 
 
 def chk_url_up(url):
@@ -36,6 +43,7 @@ def chk_url_up(url):
     if response.status_code == 200:
         return True
     return False
+
 
 def get_quotes(args):
     href, _ctr = args[0], args[1]
@@ -65,6 +73,7 @@ def get_quotes(args):
         quote_lst.append(quote)
     return quote_lst
 
+
 def fetch():
     quotes_lst = []
     _ctr = 1
@@ -87,12 +96,12 @@ def fetch():
             results = executor.map(get_quotes, a_lst)
         # for href in a_lst:
         #     quote = get_quotes(href=href)
-        
+
         for quote_lst_r in results:
             quotes_lst += quote_lst_r
 
         _ctr += 1
-        # break
+        break
 
     return quotes_lst
 
@@ -100,19 +109,24 @@ def fetch():
 def save_cache(lst):
     with open(os.path.join(CACHE_DIR, 'data.pkl'), 'wb') as lst_p:
         pickle.dump(lst, lst_p)
-        
 
-def show_msg():
+
+def show_msg(return_msg=False):
     lst = None
-    with open(os.path.join(CACHE_DIR, 'data.pkl'), 'rb') as lst_p:
-        lst = pickle.loads(lst_p.read())
+    try:
+        with open(os.path.join(CACHE_DIR, 'data.pkl'), 'rb') as lst_p:
+            lst = pickle.loads(lst_p.read())
+    except FileNotFoundError:
+        print('Unable to load cache. Try running w2nv-init.')
+        return
     msg = lst[randrange(len(lst))]
     print(
-        Fore.CYAN + Style.BRIGHT + f'"{msg.text.strip()}"'\
-            + Fore.YELLOW + f'\n\t\t\t\t- {msg.year}, {msg.episode}'
-        )
-    return msg
-    
+        Fore.CYAN + Style.BRIGHT + f'"{msg.text.strip()}"'
+        + Fore.YELLOW + f'\n\t\t\t\t- {msg.year}, {msg.episode}'
+    )
+    if return_msg:
+        return msg
+
 
 def main():
     show_msg()
