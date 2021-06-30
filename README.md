@@ -25,3 +25,6 @@ $ w2nv
 ```bash
 $ echo 'w2nv' >> ~/.bashrc
 ```
+
+## Preview
+![preview-screenshot](https://raw.githubusercontent.com/rijumone/W2NVShellMessage/master/res/w2nvshellmessage-preview.png)
